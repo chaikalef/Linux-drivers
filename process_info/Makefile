@@ -6,7 +6,7 @@ ifneq (${KERNELRELEASE},)
 # Иначе вызов из командной строки.
 # Тогда вызываем среду компиляции ядра.
 else
-	KERNEL_SOURCE := /usr/src/linux-headers-4.18.0-17-generic
+	KERNEL_SOURCE := /usr/src/linux-headers-3.19.0-25-generic
 	PWD := $(shell pwd)
 
 default:
