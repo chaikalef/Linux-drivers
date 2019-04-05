@@ -10,11 +10,6 @@ else
 	PWD := $(shell pwd)
 default:
 	${MAKE} -C ${KERNEL_SOURCE} SUBDIRS=${PWD} modules
-
-clean:
-	${MAKE} -C ${KERNEL_SOURCE} SUBDIRS=${PWD} clean
-	
-install:
 	sudo insmod hello.ko
 
 check:
@@ -28,10 +23,9 @@ check:
 	echo
 	sudo cat /dev/hello
 	echo
+	dmesg | tail
 
 delete:
 	sudo rmmod hello
-
-see:
-	dmesg | tail
+	${MAKE} -C ${KERNEL_SOURCE} SUBDIRS=${PWD} clean
 endif
