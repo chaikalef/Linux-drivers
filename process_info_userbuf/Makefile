@@ -18,11 +18,16 @@ install:
 	sudo insmod hello.ko
 
 check:
-	lsmod | head -10
-	ls /sys/class
-	ls /dev
-	cat /proc/devices
-	cat /dev/hello
+	lsmod | head -10 | grep hello
+	echo
+	ls /sys/class | grep teach_devices
+	echo
+	ls /dev | grep hello
+	echo
+	cat /proc/devices | grep hello
+	echo
+	sudo cat /dev/hello
+	echo
 
 delete:
 	sudo rmmod hello

@@ -19,7 +19,8 @@ install:
 	sudo insmod hello.ko
 
 check:
-	lsmod | head -10
+	lsmod | head -10 | grep hello
+	echo
 
 delete:
 	sudo rmmod hello
