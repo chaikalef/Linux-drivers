@@ -13,4 +13,20 @@ default:
 
 clean:
 	${MAKE} -C ${KERNEL_SOURCE} SUBDIRS=${PWD} clean
+	
+install:
+	sudo insmod hello.ko
+
+check:
+	lsmod | head -10
+	ls /sys/class
+	ls /dev
+	cat /proc/devices
+	cat /dev/hello
+
+delete:
+	sudo rmmod hello
+
+see:
+	dmesg | tail
 endif

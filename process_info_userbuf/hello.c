@@ -1,4 +1,3 @@
-/* hello.c – Заготовка для второй лабораторной работы */
 #include <linux/module.h>
 #include <linux/version.h>
 #include <linux/kernel.h>
@@ -33,7 +32,6 @@ void show_proc_list(void) //Функция для вывода всех имею
     
    }
 }
-
 
 static struct file_operations hello_fops =
 {
@@ -126,7 +124,6 @@ static ssize_t my_write(struct file *filp, const char *buff, size_t len, loff_t 
         return -EINVAL;
 }
 
-
 static void __exit hello_exit(void) /* Деинициализаия */
 {
     printk(KERN_INFO "Hello: unregistered\n");
@@ -141,5 +138,3 @@ module_exit(hello_exit);
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Ivan Sidyakin");
 MODULE_DESCRIPTION("Simple loadable kernel module");
-
-

@@ -1,5 +1,3 @@
-5 лаба (как и в 4, вывод исполняющихся процессов)
-sudo cat /dev/hello
 6 лаба (работа со светодиодами)
 sudo ./test ledstate
 sudo ./test on/off 1 (Можно 0-7)
