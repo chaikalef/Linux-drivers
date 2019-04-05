@@ -12,7 +12,18 @@ else
 default:
 	${MAKE} -C ${KERNEL_SOURCE} SUBDIRS=${PWD} modules
 
-
 clean:
 	${MAKE} -C ${KERNEL_SOURCE} SUBDIRS=${PWD} clean
+
+install:
+	sudo insmod hello.ko
+
+check:
+	lsmod | head -10
+
+delete:
+	sudo rmmod hello
+
+see:
+	dmesg | tail
 endif
