@@ -17,9 +17,14 @@ default:
 
 clean:
 	${MAKE} -C ${KERNEL_SOURCE} SUBDIRS=${PWD} clean
+	rm test.o test
 
 install:
 	sudo insmod hello.ko
+	gcc test.o -o test
+
+test.o: test.c
+	gcc -c test.c
 
 check:
 	sudo ./test ledstate
@@ -54,6 +59,16 @@ delete:
 	sudo rmmod hello
 
 see:
+	lsmod | head -10 | grep hello
+	echo
+	ls /sys/class | grep teach_devices
+	echo
+	ls /dev | grep hello
+	echo
+	cat /proc/devices | grep hello
+	echo
+	sudo cat /dev/hello
+	echo
 	dmesg | tail
 endif
 
