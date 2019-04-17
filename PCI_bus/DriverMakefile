@@ -2,7 +2,7 @@
 # если объявлена переменная среды окружения KERNELRELEASE
 # запуски из среды компиляции ядра, которой надо указать компилируемый файл.
 ifneq (${KERNELRELEASE},)
-	obj-m := process_info_userbuf.o
+	obj-m := PCI_bus.o
 # Иначе вызов из командной строки.
 # Тогда вызываем среду компиляции ядра.
 else
@@ -10,22 +10,22 @@ else
 	PWD := $(shell pwd)
 default:
 	${MAKE} -C ${KERNEL_SOURCE} SUBDIRS=${PWD} modules
-	sudo insmod process_info_userbuf.ko
+	sudo insmod PCI_bus.ko
 
 check:
-	lsmod | grep process_info_userbuf
+	lsmod | grep PCI_bus
 	echo
-	ls /sys/class | grep process_info_userbuf
+	ls /sys/class | grep PCI_buses
 	echo
-	ls /dev | grep process_info_userbuf
+	ls /dev | grep PCI_bus
 	echo
-	cat /proc/devices | grep process_info_userbuf
+	cat /proc/devices | grep PCI_bus
 	echo
-	sudo cat /dev/process_info_userbuf
+	sudo cat /dev/PCI_bus
 	echo
 	dmesg | tail
 
 delete:
-	sudo rmmod process_info_userbuf
+	sudo rmmod PCI_bus
 	${MAKE} -C ${KERNEL_SOURCE} SUBDIRS=${PWD} clean
 endif

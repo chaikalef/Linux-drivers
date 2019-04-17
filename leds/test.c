@@ -14,7 +14,7 @@
 #define LEDCMD_SET_LED_STATE _IOW(HELLO_MAJOR, 4, led_t *)
 
 /* define name of the drivers */
-#define FILENAME "/dev/hello"
+#define FILENAME "/dev/leds"
 
 /* initial state of LEDs */
 #define INITIAL_STATE 0x00
@@ -47,7 +47,7 @@ void led_on(int led_n);
 
 void led_reset(void) {
     int fd;
-    /* open device /dev/hello */
+    /* open device /dev/leds */
     fd = open(FILENAME, O_RDWR);
     if (fd == -1) {
         fprintf(stderr, "Cannot open file %s\n", FILENAME);
@@ -68,7 +68,7 @@ void led_state(int led_n) {
     /* state of all LEDs at once in one byte */
     char state;
 
-    /* open device /dev/hello */
+    /* open device /dev/leds */
     fd = open(FILENAME, O_RDWR);
     if (fd == -1) {
         fprintf(stderr, "Cannot open file %s\n", FILENAME);
@@ -103,7 +103,7 @@ void led_off(int led_n) {
     int fd;
     led_t led;
 
-    /* open device /dev/hello */
+    /* open device /dev/leds */
     if ((fd = open(FILENAME, O_RDWR)) == -1) {
         fprintf(stderr, "Cannot open file %s\n", FILENAME);
         return;
