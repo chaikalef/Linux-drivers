@@ -2,30 +2,30 @@
 # если объявлена переменная среды окружения KERNELRELEASE
 # запуски из среды компиляции ядра, которой надо указать компилируемый файл.
 ifneq (${KERNELRELEASE},)
-	obj-m := hello.o
+	obj-m := process_info_userbuf.o
 # Иначе вызов из командной строки.
 # Тогда вызываем среду компиляции ядра.
 else
-	KERNEL_SOURCE := /usr/src/linux-headers-3.19.0-25-generic
+	KERNEL_SOURCE := /usr/src/linux-headers-4.18.0-18-generic
 	PWD := $(shell pwd)
 default:
 	${MAKE} -C ${KERNEL_SOURCE} SUBDIRS=${PWD} modules
-	sudo insmod hello.ko
+	sudo insmod process_info_userbuf.ko
 
 check:
-	lsmod | head -10 | grep hello
+	lsmod | grep process_info_userbuf
 	echo
-	ls /sys/class | grep teach_devices
+	ls /sys/class | grep process_info_userbuf
 	echo
-	ls /dev | grep hello
+	ls /dev | grep process_info_userbuf
 	echo
-	cat /proc/devices | grep hello
+	cat /proc/devices | grep process_info_userbuf
 	echo
-	sudo cat /dev/hello
+	sudo cat /dev/process_info_userbuf
 	echo
 	dmesg | tail
 
 delete:
-	sudo rmmod hello
+	sudo rmmod process_info_userbuf
 	${MAKE} -C ${KERNEL_SOURCE} SUBDIRS=${PWD} clean
 endif

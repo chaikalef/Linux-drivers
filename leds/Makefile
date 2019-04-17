@@ -7,27 +7,27 @@ FLAGS = -g -Wall -Wstrict-prototypes -ansi -pedantic
 # several binaries at once
 
 ifneq (${KERNELRELEASE},)
-	obj-m := hello.o
+	obj-m := leds.o
 else
-	KERNEL_SOURCE := /usr/src/linux-headers-3.19.0-25-generic
+	KERNEL_SOURCE := /usr/src/linux-headers-4.18.0-18-generic
 	PWD := $(shell pwd)
 	
 default:
 	${MAKE} -C ${KERNEL_SOURCE} SUBDIRS=${PWD} modules
-	sudo insmod hello.ko
+	sudo insmod leds.ko
 	gcc -c test.c
 	gcc test.o -o test
 
 check:
-	lsmod | head -10 | grep hello
+	lsmod | grep leds
 	echo
-	ls /sys/class | grep teach_devices
+	ls /sys/class | grep leds
 	echo
-	ls /dev | grep hello
+	ls /dev | grep leds
 	echo
-	cat /proc/devices | grep hello
+	cat /proc/devices | grep leds
 	echo
-	sudo cat /dev/hello
+	sudo cat /dev/leds
 	echo
 	dmesg | tail
 	sudo ./test ledstate
@@ -59,7 +59,7 @@ check:
 	sudo ./test
 
 delete:
-	sudo rmmod hello
+	sudo rmmod leds
 	rm test.o test
 	${MAKE} -C ${KERNEL_SOURCE} SUBDIRS=${PWD} clean
 endif

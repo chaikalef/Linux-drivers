@@ -13,6 +13,11 @@
 #include <linux/tcp.h>
 #include <linux/udp.h>
 #include <linux/gfp.h>
+#if LINUX_VERSION_CODE < KERNEL_VERSION(4, 11, 0)
+	#include <linux/signal.h>
+#else
+	#include <linux/sched/signal.h>
+#endif
 
 #define MAX_MESSAGE_LENGTH 90
 #define BUF_SIZE 64
@@ -111,7 +116,7 @@ int circular_buf_get(struct circBuf_t * cbuf, char ** data)
     return r;
 }
 
-static struct file_operations hello_fops =
+static struct file_operations sniffer_fops =
 {
 	.owner = THIS_MODULE,
 	.open = my_open,
@@ -183,7 +188,7 @@ int ip_handler_register(void)
 	nfho.priority = NF_IP_PRI_FIRST;/* Назначаем обработчику 1-ый приоритет */
 
 	nf_register_hook(&nfho);
-	printk("Hello: Netfilter hook registered!\n");
+	printk("Sniffer: Netfilter hook registered!\n");
 	return 0;
 }
 
@@ -191,17 +196,17 @@ int ip_handler_register(void)
 void ip_handler_unregister(void)
 {
 	nf_unregister_hook(&nfho);
-	printk("Hello: Netfilter hook unregistered!\n");
+	printk("Sniffer: Netfilter hook unregistered!\n");
 }
 
-static int __init hello_init(void) /* Инициализация */
+static int __init sniffer_init(void) /* Инициализация */
 {
 	int retval;
 	bool allocated = false;
 	bool created = false;
 	cl = NULL;
 
-	retval = alloc_chrdev_region(&dev, 0, 1, "hello");
+	retval = alloc_chrdev_region(&dev, 0, 1, "shiffer");
 	if (retval)
 		goto err;
 
@@ -209,29 +214,29 @@ static int __init hello_init(void) /* Инициализация */
 	printk(KERN_INFO "Major number = %d Minor number = %d\n",
 	 	   MAJOR(dev), MINOR(dev));
 
-	cl = class_create(THIS_MODULE, "teach_devices");
+	cl = class_create(THIS_MODULE, "shiffers");
 	if (!cl) {
 		retval = -1;
 		goto err;
 	}
 
-	if (device_create(cl, NULL, dev, NULL, "hello") == NULL) {
+	if (device_create(cl, NULL, dev, NULL, "shiffer") == NULL) {
 		retval = -1;
 		goto err;
 	}
 	created = true;
 
-	cdev_init(&c_dev, &hello_fops);
+	cdev_init(&c_dev, &sniffer_fops);
 
 	retval = cdev_add(&c_dev, dev, 1);
 	if (retval)
 		goto err;
 
-	printk(KERN_INFO "Hello: registered");
+	printk(KERN_INFO "Shiffer: registered");
 	return 0;
 
 err:
-	printk("Hello: initialization failed with code %08x\n", retval);
+	printk("Sniffer: initialization failed with code %08x\n", retval);
 
 	if (created)
 		device_destroy(cl, dev);
@@ -309,9 +314,9 @@ static ssize_t my_write(struct file *filp, const char *buff,
 }
 
 
-static void __exit hello_exit(void) /* Деинициализаия */
+static void __exit sniffer_exit(void) /* Деинициализаия */
 {
-    printk(KERN_INFO "Hello: unregistered\n");
+    printk(KERN_INFO "Shiffer: unregistered\n");
     device_destroy (cl, dev);
     unregister_chrdev_region (dev, 1);
     class_destroy (cl);
@@ -319,9 +324,9 @@ static void __exit hello_exit(void) /* Деинициализаия */
 	kfree(message);
 }
 
-module_init(hello_init);
-module_exit(hello_exit);
+module_init(sniffer_init);
+module_exit(sniffer_exit);
 
-MODULE_LICENSE("GPL");
-MODULE_AUTHOR("Ivan Sidyakin");
+MODULE_LICENSE("AGPL");
+MODULE_AUTHOR("Sergey Chaika");
 MODULE_DESCRIPTION("Simple loadable kernel module");

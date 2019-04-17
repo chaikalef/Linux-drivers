@@ -8,6 +8,12 @@
 #include <linux/sched.h>
 #include <linux/vmalloc.h>
 #include <asm/uaccess.h>
+#if LINUX_VERSION_CODE < KERNEL_VERSION(4, 11, 0)
+	#include <linux/signal.h>
+#else
+	#include <linux/sched/signal.h>
+#endif
+
 #define HELLO_MAJOR 250
 
 #define LEDCMD_RESET_STATE _IO(HELLO_MAJOR, 1)
@@ -16,7 +22,7 @@
 #define LEDCMD_SET_LED_STATE _IOW(HELLO_MAJOR, 4, led_t *)
 
 /* define name of the drivers */
-#define FILENAME "/dev/hello"
+#define FILENAME "/dev/leds"
 
 /* initial state of LEDs */
 #define INITIAL_STATE 0x00
@@ -61,17 +67,17 @@ static dev_t dev;
 static struct cdev c_dev;
 static struct class * cl;
 
-static int hello_open(struct inode *inode, struct file *file);
-static int hello_close(struct inode *inode, struct file *file);
-static ssize_t hello_read(struct file *filp, char *buffer,
+static int leds_open(struct inode *inode, struct file *file);
+static int leds_close(struct inode *inode, struct file *file);
+static ssize_t leds_read(struct file *filp, char *buffer,
                        size_t length, loff_t * offset);
-static ssize_t hello_write(struct file *filp, const char *buff,
+static ssize_t leds_write(struct file *filp, const char *buff,
                         size_t len, loff_t * off);
 
-static long hello_ioctl(struct file *f, unsigned int cmd,
+static long leds_ioctl(struct file *f, unsigned int cmd,
                         unsigned long arg);
 
-static long hello_ioctl(struct file *f, unsigned int cmd, unsigned long arg)
+static long leds_ioctl(struct file *f, unsigned int cmd, unsigned long arg)
 {
     int retval = -EINVAL;
     led_t led;
@@ -149,69 +155,69 @@ static long hello_ioctl(struct file *f, unsigned int cmd, unsigned long arg)
     return retval;
 }
 
-static int hello_open(struct inode *inode, struct file *file) {
+static int leds_open(struct inode *inode, struct file *file) {
     return EOK;
 }
 
-static ssize_t hello_read(struct file *filp, char *buffer,
+static ssize_t leds_read(struct file *filp, char *buffer,
                        size_t length, loff_t * offset) {
     return EOK;
 }
 
-static ssize_t hello_write(struct file *filp, const char *buff,
+static ssize_t leds_write(struct file *filp, const char *buff,
                         size_t len, loff_t * off) {
         return -EINVAL;
 }
 
-static int hello_close(struct inode *inode, struct file *file) {
+static int leds_close(struct inode *inode, struct file *file) {
     return EOK;
 }
 
-static struct file_operations hello_fops = {
+static struct file_operations leds_fops = {
     .owner = THIS_MODULE,
-    .open = hello_open,
-    .release = hello_close,
-    .read = hello_read,
-    .write = hello_write,
-    .unlocked_ioctl = hello_ioctl
+    .open = leds_open,
+    .release = leds_close,
+    .read = leds_read,
+    .write = leds_write,
+    .unlocked_ioctl = leds_ioctl
 };
 
-static int __init hello_init(void) {
+static int __init leds_init(void) {
     int retval;
     bool allocated = false;
     bool created = false;
     cl = NULL;
 
     retval = alloc_chrdev_region(&dev, START_MINOR_CODE,
-                                 ALLOC_MINOR, "hello");
+                                 ALLOC_MINOR, "leds");
     if (retval)
         goto err;
 
     allocated = true;
     printk(KERN_INFO "Major number = %d Minor number = %d\n",
             MAJOR(dev), MINOR(dev));
-    cl = class_create(THIS_MODULE, "teach_devices");
+    cl = class_create(THIS_MODULE, "leds");
     if (!cl) {
         retval = -1;
         goto err;
     }
 
-    if (device_create(cl, NULL, dev, NULL, "hello") == NULL) {
+    if (device_create(cl, NULL, dev, NULL, "leds") == NULL) {
         retval = -1;
         goto err;
     }
 
     created = true;
-    cdev_init(&c_dev, &hello_fops);
+    cdev_init(&c_dev, &leds_fops);
     retval = cdev_add(&c_dev, dev, 1);
     if (retval)
         goto err;
 
-    printk(KERN_INFO "Hello: regisered\n");
+    printk(KERN_INFO "Leds: regisered\n");
     return EOK;
 
 err:
-    printk(KERN_INFO "Hello: initialization failed with code %d\n",
+    printk(KERN_INFO "Leds: initialization failed with code %d\n",
            retval);
     if (created)
         device_destroy(cl, dev);
@@ -226,17 +232,16 @@ err:
 }
 
 
-static void __exit hello_exit(void) {
-    printk(KERN_INFO "Hello: unregistered\n");
+static void __exit leds_exit(void) {
+    printk(KERN_INFO "Leds: unregistered\n");
     device_destroy (cl, dev);
     unregister_chrdev_region (dev, UNREG_DEV);
     class_destroy (cl);
 }
 
+module_init(leds_init);
+module_exit(leds_exit);
 
-
-module_init(hello_init);
-module_exit(hello_exit);
-MODULE_LICENSE("GPL");
-MODULE_AUTHOR("Ivan Sidyakin");
+MODULE_LICENSE("AGPL");
+MODULE_AUTHOR("Sergey Chaika");
 MODULE_DESCRIPTION("Simple loadable kernel module");

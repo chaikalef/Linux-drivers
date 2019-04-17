@@ -1,9 +1,8 @@
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-#define DEVICE "/dev/hello"
+#define DEVICE "/dev/PCI_bus"
 #define PCI_INFO "/usr/share/misc/pci.ids"
 #define BUF_LEN 100
 #define STR_LEN 100
@@ -26,7 +25,7 @@ void add_zeros(char ** str) {
 
 int main(int argc, char * argv[])
 {
-    FILE * hello_dev = fopen(DEVICE , "r");
+    FILE * PCI_bus_dev = fopen(DEVICE , "r");
     FILE * all_pci = fopen(PCI_INFO , "r");
     char info_from_dev[STR_LEN];
     int i;
@@ -40,19 +39,19 @@ int main(int argc, char * argv[])
     i = 0;
     temp_str = calloc(STR_LEN, sizeof(char));
 
-    if (hello_dev == NULL) {
+    if (PCI_bus_dev == NULL) {
         printf("Ошибка открытия файла устройства\n");
         return 0;
     }
     else
     {
         while (i < BUF_LEN) {
-            if (fgets(info_from_dev, BUF_LEN, hello_dev) != NULL)
+            if (fgets(info_from_dev, BUF_LEN, PCI_bus_dev) != NULL)
                 strcpy(all_pci_info[i++], info_from_dev);
             else
                 break;
         }
-        fclose (hello_dev);
+        fclose (PCI_bus_dev);
     }
 
     if (all_pci == NULL)
